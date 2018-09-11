@@ -144,23 +144,27 @@ class snake():
         
     def grow(self):
         tam=len(self.body)
-        self.body.append(seg())
+        self.body.append(self.segment(self,self.body[tam-1].vertex[0:4]))
         
     def die(self,banquet):
         for seg in self.body:
             pos=seg.center[0:2]
             banquet.addFood(pos)
             self.body.remove(seg)
-    
-    def eat(self,banquet,food):
-        banquet.population.remove(food)
-        self.body
+            self.root.itemconfig(self,fill='')
+        self.isAlive=False
+        
+            
+    def eat(self,food):
+        food.father.population.remove(food)
+        self.grow()
         
 
 class food():
-    def __init__(self,root,foodPos,width=5):
+    def __init__(self,root,father,foodPos,width=5):
         self.width=width
         self.pos=foodPos
+        self.father=father
         root.create_oval(foodPos[0],
                          foodPos[1],
                          foodPos[0]+width,

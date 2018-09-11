@@ -12,8 +12,8 @@ def truncated_normal(mean=0, sd=1, low=0, upp=10):
     return truncnorm(
         (low - mean) / sd, (upp - mean) / sd, loc=mean, scale=sd)
 #    X = truncated_normal(mean=0, sd=0.4, low=-0.5, upp=0.5)
-def sigma(x):
-    return 1/(1+np.exp(-x))
+def sigma(t,x):
+    return 1/(1+np.exp(-x/t))
 
 class brain():
 
@@ -48,5 +48,5 @@ class brain():
         vecIn=np.matrix(inpt)
         saida=vecIn
         for i in range(0, len(self.brainMatrixes)):
-            saida=sigma(saida*self.brainMatrixes[i])
+            saida=sigma(1,saida*self.brainMatrixes[i])
         return saida.A1

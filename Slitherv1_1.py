@@ -19,8 +19,9 @@ w.pack()
 
 ball = w.create_oval(200,200,120,120)
 master.update()
-snakes=snakery.snakery(w,15)
 foods =banquet.banquet(w,50)
+snakes=snakery.snakery(w,8,foods,lenght=5,width=8,segDis=2)
+
 
 for snk in snakes.population:
     snk.body[0].direction=random.random()*2*np.pi
@@ -48,10 +49,11 @@ def setMousePos(event):
 
 def moveSnake():
     mysnake.moveSnake()
-    for snk in snakes.population:
-        snk.moveSnake()
+    snakes.moveAll()
+    snakes.checkCollisions()
+    snakes.checkFoodCollisions()
         
-    master.after(100,moveSnake)
+    master.after(50,moveSnake)
 
 master.bind('<B1-Motion>',setMousePos)
 mysnake=tksnake.snake(w,lenght=50,x=200,y=200)
