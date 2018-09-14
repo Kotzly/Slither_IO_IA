@@ -74,7 +74,7 @@ parameters={'bicepsinteiro.txt': [400,20,10],\
     
 
 def mergeSnakes(snk1,snk2):
-    snk=tksnake.snake(lenght=self.lenght,width=self.width,segDis=self.segDis)
+    snk=tksnake.snake(lenght=snk1.lenght,width=snk1.width,segDis=snk1.segDis)
     snk.brainMatrixes=(snk1.brainMatrixes+snk2.brainMatrixes)/2
     
 # Crossover by adding different chromossomes and dividing by the number of
@@ -86,7 +86,7 @@ def meanCrossover(pais):
     soma = sum([pai.brainMatrixes for pai in pais])
     
     tam= len(pais)
-    filho.cromo.freqFactor=somaFreqs/tam
+    filho.brainMatrixes=somaFreqs/tam
     mutate(filho)
     filho.marker+=' meaned '
     
@@ -95,7 +95,7 @@ def meanCrossover(pais):
 # Crossover by replacing the sons genes by his mother's or his father's, with 
 # 50% chance
 def binaryCrossover(pais):
-    filho=tknake.snake(pais[0].root,x=0,y=0,pais[0].lenght,pais[0].width,pais[0].segmentDistance)
+    filho=tknake.snake(pais[0].root,x=0,y=0,lenght=pais[0].lenght,width=pais[0].width,segDis=pais[0].segmentDistance)
     for i in range(0,len(filho.brainMatrixes)):
         for j in range(0,len(filho.brainMatrixes[i])):
             for k in range(0,len(filho.brainMatrixes[i][j])): 
@@ -125,14 +125,13 @@ def torneio(snkry):
 # Generate a new population by performing crossovers with best and the reminder
 # population
 def genNewPop(best,pop):   
-    newpop=population()
     for indiv in pop.population:
         if indiv == best:
-            newpop.population.append(indiv)
+#            newpop.population.append(indiv)
             continue
         else:
             temp=weightedCrossover([best,indiv])
-            newpop.population.append(temp)
+            indiv=temp
     return newpop
 
 # Remove the n less fitted individuals, replacing them by new ones
@@ -141,8 +140,9 @@ def removeSuckers(pop,n):
     def getFit(indiv):
         return indiv.fit
     pop.population.sort(reverse=False,key=getFit)
+    snk1=pop.poulation[0]
     for i in range(0,n):
-        pop.population[i]=ind()
+        pop.population[i]=tksnake.snake(lenght=snk1.lenght,width=snk1.width,segDis=snk1.segDis)
         pop.population[i].marker+= 'new'
         
 # Returns the mean fitness of poppulation in pop
@@ -224,6 +224,42 @@ class populationControl():
                 
                 self._counter=0  
 
+
+# Mutation method. The mutation can be vetorial or absolute.
+def mutate(indiv):
+
+    global taxaMut,chanceMut
+
+    if random.random()<vectorialMutationChance:
+        vec=tknake.snake(indiv.root,x=0,y=0,lenght=indiv.lenght,width=indiv.width,segDis=indiv.segmentDistance).brainMatrixes
+  
+        for indivLayer,layer in zip(indivLayer.brainMatrixes,vec.brainMatrixes):
+            
+            amp=np.sqrt(sum([sum([pow(i,2) for i in line])  for line in layer]))
+            layer/=amp
+    #        vec*=taxaMut*random.random()
+            layer*=taxaMut
+    #        for value in vec.A1:
+    #            value*=taxaMut
+            indivLayer+=layer
+    indiv.marker='vectorial'
+#    for line in indiv.cromo.freqFactor:
+#        for i in range(0,len(np.array(line)[0])):
+#            if random.random()*1000<chanceMut:
+#                line[0,i]+=mut*random.random()
+    else:
+        for layer in indiv.brainMatrixes:
+            for line in layer:
+                for value in line:    
+                    if random.random()*10000<chanceMut:
+                        if random.random()<0.5:
+                            mut =  taxaMut
+                        else:
+                            mut = -taxaMut
+                        value+=mut*random.random()
+    
+        indiv.marker='absolute'
+        
 #def main():
 #    
 #    global  maxFreq,\

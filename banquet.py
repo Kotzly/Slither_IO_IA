@@ -22,6 +22,17 @@ def getCanvasDimensions(canvas):
 
     
 class banquet():
+    def clean(self,food):
+        food.clean()
+        self.population.remove(food)
+        if len(self.population)<self.maxFood:
+            self.addFood_random()
+
+    def addFood_random(self):
+        self.updateScreenInfo()
+        pos=[random.random()*self.canvasWidth,random.random()*self.canvasHeight]
+        self.population.append(tksnake.food(self.root,self,pos,width=self.foodWidth))
+
     def addFood(self,position):
         self.population.append(tksnake.food(self.root,self,position,width=self.foodWidth))
     def __init__(self,root,max_number,width=5):
@@ -29,10 +40,12 @@ class banquet():
         self.root=root
         self.maxFood=max_number
         self.foodWidth=width
-        self.updateScreenInfo()
         for i in range(0,max_number):
-            pos=[random.random()*self.canvasWidth,random.random()*self.canvasHeight]
-            self.population.append(tksnake.food(root,self,pos,width=width))
+            self.addFood_random()
+#        self.updateScreenInfo()
+#        for i in range(0,max_number):
+#            pos=[random.random()*self.canvasWidth,random.random()*self.canvasHeight]
+#            self.population.append(tksnake.food(root,self,pos,width=width))
 
     def updateScreenInfo(self):
         self.root.update()

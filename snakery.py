@@ -37,7 +37,8 @@ class snakery():
     def snakeDist(self,snk1,snk2):
         distances= [ 
                     dist(snk1.body[0].center,snk2.body[i].center) -snk2.width
-                    for i in range(0,len(snk2.body)) if snk2.isAlive
+                    for i in range(0,len(snk2.body)) 
+                    if snk2.isAlive
                    ]
         return min(distances)
     def getSnake(self,i):
@@ -51,6 +52,7 @@ class snakery():
         self.segDis=3
         self.tamPop=tamPop
         self.banquet=banquet
+        self.snakeCount=0
         root.update()
         cols=root.winfo_width()
         rows=root.winfo_height()
@@ -61,7 +63,7 @@ class snakery():
             n=getDim(tamPop,cols,rows)
 
             self.population.append(tksnake.snake(root,lenght=self.lenght,x=n[i][0],y=n[i][1]))
-    
+            self.population[i].id=self.snakeCount
     
     def updateScreenInfo(self):
         self.root.update()
@@ -70,21 +72,26 @@ class snakery():
         
     def checkCollisions(self):
         for me_snk in self.population:
+            me_snk.see(10)
+
             ######################3
             if me_snk.isAlive:
                 self.updateScreenInfo()
         
-                if me_snk.body[0].center[0]> self.canvasWidth and me_snk.body[0].center[1]> self.canvasHeight:
+                if me_snk.body[0].center[0]> self.canvasWidth or me_snk.body[0].center[1]> self.canvasHeight or me_snk.body[0].center[0]<0 or me_snk.body[0].center[1]<0:
                     me_snk.die(self.banquet)
                 for other_snk in self.population:
                     if (not me_snk == other_snk) and other_snk.isAlive and self.snakeDist(me_snk,other_snk) < 0:
                         me_snk.die(self.banquet)
+                        me_snk.see(10)
             #########################
     def checkFoodCollisions(self):
         for ind in self.population:
-            for food in self.banquet.population:
-                if dist(ind.body[0].center,food.pos) < ind.width+food.width:
-                    ind.eat(food)
+            if ind.isAlive:
+                for food in self.banquet.population:
+                    if dist(ind.body[0].center,food.pos) < ind.width:
+                        ind.eat(food)
+    
                     
                     
                     
@@ -92,4 +99,7 @@ class snakery():
         for snk in self.population:
             if snk.isAlive:
                 snk.moveSnake()
+        
+        self.checkCollisions()
+        self.checkFoodCollisions()
         

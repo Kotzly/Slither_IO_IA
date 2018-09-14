@@ -94,7 +94,7 @@ class snake():
         self.lenght=lenght
         self.x,self.y = x,y
         self.width=width
-        self.brain=brain(15,1,4,[12,4])
+        self.brain=brain(21,1,4,[12,4])
         self.root=root
         self.body=[]
         self.maxTurning=np.pi/24
@@ -120,6 +120,7 @@ class snake():
         self.setHeadDirection(d+self.body[0].direction)
          
     def moveSnake(self):
+        self.think()
         bd=self.body
         for i in range(len(bd)-1,-1,-1):
             if i==0:
@@ -134,13 +135,54 @@ class snake():
             bd[i].recalculate()
         for i in range(0,len(bd)):
             newCoords=(bd[i].center[0],bd[i].center[1],
-                             bd[i].center[0]+self.width,bd[i].center[1]+self.width)
+                       bd[i].center[0]+self.width,bd[i].center[1]+self.width)
             self.root.coords(bd[i].shape,*newCoords)
 #        self.turnHead(np.pi/3)
 #        bd[0].direction=bd[0].direction+np.pi/6
             
+    def see(self,distance):
+        snks=[]
+        fds=[]
+        vision=[]
+        mp=self.body[0].center
+        i,j=0,0
+        x0=mp[0]-1.5*distance
+        y0=mp[1]-1.5*distance
+        thought=[]
+        k=0
+        for j in range(0,3):
+            for i in range(0,3):
+                thought.append([])    
+                vision=self.root.find_overlapping(x0+i*distance,y0+j*distance,x0+(i+1)*distance,y0+(j+1)*distance)
+                my_shapes=[seg.shape for seg in self.body]
+                for obj in vision:
+                    if not obj in my_shapes:
+                        thought[k].append(obj)
+                k+=1
+            
+        return thought
+    
     def think(self):
-        trainOfThought=[self.body[0].direction]
+        def parseVision(v):
+            vision=[]
+            segCounter,foodCounter=0,0
+            for rec in v:
+                segCounter=0
+                foodCounter=0        
+                for obj in rec:
+                    coords=self.root.coords(obj)
+                    if dist(coords[0:2],coords[2:4])==self.width:
+                        segCounter+=1
+                    else:
+                        foodCounter+=1
+                vision.append(segCounter)
+                vision.append(foodCounter)
+            return vision
+        vision = parseVision(self.see(30))       
+        pos=self.body[0].center[0:2]
+        pos.extend(vision)
+        pos.extend([1])
+        self.turnHead(self.brain.run(pos)[0])
         
     def grow(self):
         tam=len(self.body)
@@ -150,22 +192,29 @@ class snake():
         for seg in self.body:
             pos=seg.center[0:2]
             banquet.addFood(pos)
+#            self.root.itemconfig(seg.shape,fill='',outline='')
+       
+            self.root.delete(seg.shape)
+     
             self.body.remove(seg)
-            self.root.itemconfig(self,fill='')
         self.isAlive=False
         
             
     def eat(self,food):
-        food.father.population.remove(food)
+        food.father.clean(food)
         self.grow()
-        
 
 class food():
+    def clean(self):
+        self.root.delete(self.shape)
+        print 'caralho'
+
     def __init__(self,root,father,foodPos,width=5):
         self.width=width
         self.pos=foodPos
         self.father=father
-        root.create_oval(foodPos[0],
+        self.root=root
+        self.shape=root.create_oval(foodPos[0],
                          foodPos[1],
                          foodPos[0]+width,
                          foodPos[1]+width,

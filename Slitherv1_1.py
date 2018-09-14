@@ -20,7 +20,7 @@ w.pack()
 ball = w.create_oval(200,200,120,120)
 master.update()
 foods =banquet.banquet(w,50)
-snakes=snakery.snakery(w,8,foods,lenght=5,width=8,segDis=2)
+snakes=snakery.snakery(w,5,foods,lenght=8,width=8,segDis=3)
 
 
 for snk in snakes.population:
@@ -50,14 +50,14 @@ def setMousePos(event):
 def moveSnake():
     mysnake.moveSnake()
     snakes.moveAll()
-    snakes.checkCollisions()
-    snakes.checkFoodCollisions()
-        
-    master.after(50,moveSnake)
+
+    master.after(100,moveSnake)
 
 master.bind('<B1-Motion>',setMousePos)
-mysnake=tksnake.snake(w,lenght=50,x=200,y=200)
+mysnake=tksnake.snake(w,lenght=5,x=200,y=200)
+snakes.population.append(mysnake)
 master.after(1000,moveSnake)
 
+#w.create_rectangle()
 mainloop()
 
