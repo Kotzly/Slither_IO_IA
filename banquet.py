@@ -12,7 +12,6 @@ import random
 def truncated_normal(mean=0, sd=1, low=0, upp=10):
     return truncnorm(
         (low - mean) / sd, (upp - mean) / sd, loc=mean, scale=sd)
-#    X = truncated_normal(mean=0, sd=0.4, low=-0.5, upp=0.5)
 
 def getCanvasDimensions(canvas):
     canvas.update()
@@ -25,8 +24,8 @@ class banquet():
     def clean(self,food):
         food.clean()
         self.population.remove(food)
-        if len(self.population)<self.maxFood:
-            self.addFood_random()
+#        if len(self.population)<self.maxFood:
+        self.addFood_random()
 
     def addFood_random(self):
         self.updateScreenInfo()
@@ -51,3 +50,15 @@ class banquet():
         self.root.update()
         self.canvasWidth=self.root.winfo_width()
         self.canvasHeight=self.root.winfo_height()
+    
+    def clean_all(self):
+        for food in self.population:
+            food.clean()
+        self=self.__init__(self.root,
+                           self.maxFood,
+                           width=self.foodWidth)
+    def explode(self):
+        shapes=[seg.shape for seg in self.population]
+        for obj in shapes:
+            self.root.delete(obj)
+        

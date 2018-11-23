@@ -5,7 +5,7 @@ Created on Wed Sep 05 19:18:35 2018
 @author: Paulo Augusto
 """
 import numpy as np
-from Tkinter import *
+from tkinter import *
 
 def getAngle(a,b):      #between vectors
     
