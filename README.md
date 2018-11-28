@@ -41,7 +41,10 @@ Functions:
 
 How to use:
 
-First of all, set all parameters that you want to change. If one parameter is not entered, the default one will be used. After that, press "Start/Reset".
+First of all, set all parameters that you want to change. If one parameter is not entered, the default one will be used. After that, press "Start/Reset". 
+To start it, make sure python is in PATH and run command:
+    "python Slitherv4_0.py"
+    
 The simulation will run until it reaches 1000 generations.
 If you want to modify a parameter, it's adviced that you first press "Stop", make the changes, the press "Start/Reset".
 
