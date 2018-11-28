@@ -9,6 +9,7 @@ from scipy.stats import truncnorm
 import numpy as np
 import snkbrain
 
+
 def truncated_normal(mean=0, sd=1, low=-10, upp=10):
     return truncnorm(
         (low - mean) / sd, (upp - mean) / sd, loc=mean, scale=sd)
@@ -44,6 +45,11 @@ def dtanh(x):
     
     
 class brain():
+
+    """ This class implements one's brain. It is a neural network, with a 
+    backpropagation algorithm. Originally the activation function was the 
+    sigmoid function (the backpropagation only works using the sigmoid) but
+    it was modified to be used with the hiperbolic tangent."""
     
     def __init__(self,
                  neurons,

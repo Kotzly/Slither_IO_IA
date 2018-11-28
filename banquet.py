@@ -21,6 +21,9 @@ def getCanvasDimensions(canvas):
 
     
 class banquet():
+    
+    """ This class implements some methods to deal with a number of food 
+    objects."""
     def clean(self,food):
         food.clean()
         self.population.remove(food)

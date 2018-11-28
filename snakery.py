@@ -36,6 +36,9 @@ def getDim(tam,width,height):
     return pos
            
 class snakery_class():
+    
+    """This class implements methods to deal with a large number of snakes."""
+    
     def reassemblyAll(self,w):
         for snk in self.population:
             snk.reassembly(w)
@@ -142,10 +145,14 @@ class snakery_class():
             #########################
     def checkFoodCollisions(self):
         for ind in self.population:
+            v=ind.body[0].vertex
+            pos=[(v[0]+v[2])/2+self.width/2,(v[1]+v[3])/2+self.width/2]
+#            pos=ind.body[0].center
             if ind.isAlive:
                 for food in self.banquet.population:
-                    if ind.body[0].center[0]-20<food.pos[0]<ind.body[0].center[0]+20 and ind.body[1].center[1]-20<food.pos[1]<ind.body[1].center[1]+20:
-                        if dist(ind.body[0].center,food.pos) < ind.width:
+                    min_dist=food.width+ind.width
+                    if pos[0]-min_dist<food.pos[0]<pos[0]+min_dist and pos[1]-min_dist<food.pos[1]<pos[1]+min_dist:
+                        if dist(pos,food.pos) <= (ind.width+food.width)/2:
                             ind.eat(food)
     
     def checkAlive(self):

@@ -71,9 +71,11 @@ def movePoint_v(point,vector):
     p[1]+=vector[1]
     return p
 def get_obj_center(obj):
-    return [(obj[2]+obj[0])/2,(obj[3]+obj[1])/2]
+    return [(obj[2]+obj[0])/2.0,(obj[3]+obj[1])/2.0]
 
 class snake():
+    
+    """ This class implements one snake."""
     
     class segment():
         def recalculate(self):
@@ -163,7 +165,7 @@ class snake():
             new_config=self.brain_config
         self.brain.reset_brain(new_config)
     def __init__(self,root,x=0,y=0,lenght=10,width=10,segDis=3,cpu=True,fit=0,vision_range=40,brain_config=([21,15,6,1],[1,1,0]),max_turning=np.pi/24,max_heritage=5,objs=10,kill_score=2000,neuron_value=2):
-
+        """[TODO] use *kwargs instead of a large number os kwargs"""
         self.lenght=lenght
         self.heritage=[0]
         self.cpu=cpu
@@ -273,16 +275,25 @@ class snake():
     
 
     def dist2head(self,p):
-        p=[p[2]-p[0],p[3]-p[1]]
-        return dist(p,self.body[0].center)
+        p=[(p[2]+p[0])/2.0,(p[3]+p[1])/2.0]
+        a=self.body[0].vertex
+        mp=[(a[2]+a[0])/2.0,(a[3]+a[1])/2.0]
+        return sqrdist(p,mp)
 
     
     def see_closest(self,distance):
-        mp=self.body[0].center
+        obj_dists=[]
+        obj_angles=[]
+        a=self.body[0].vertex
+        mp=[(a[2]+a[0])/2.0,(a[3]+a[1])/2.0]
         x0,y0=mp[0]-.5*distance,mp[1]-.5*distance
         thought=[]
-        my_shapes=(seg.shape for seg in self.body)
-        vision=self.root.find_overlapping(x0,y0,x0+distance,y0+distance)
+        my_shapes=[seg.shape for seg in self.body]
+        try:
+            vision=self.root.find_overlapping(x0,y0,x0+distance,y0+distance)
+#            self.root.create_rectangle(x0,y0,x0+distance,y0+distance)
+        except:
+            pass
         for obj in vision:
             if not obj in my_shapes:
                 thought.append(obj)                
@@ -292,29 +303,25 @@ class snake():
         closest=temp[:self.objs_to_see]    
         indexes=(coords.index(coord) for coord in closest)
         thought=[thought[i] for i in indexes]
-
-        obj_dists=[]
-        obj_angles=[]
-        
         for obj in thought:
             coords=self.root.coords(obj)
-            dist_value=np.sqrt(self.dist2head(coords))
 #            obj_size=round(dist(coords[0:2],coords[2:4])/np.sqrt(2),3)
 #            if obj_size==self.width:
 #                obj_dists.append(dist_value*(-1))
 #            else:
 #                obj_dists.append(dist_value)
-            
-#            print(self.root.gettags(obj))
-            if 'segment' in self.root.gettags(obj):
+            tags=self.root.gettags(obj)
+            if 'segment' in tags:
+                dist_value=np.sqrt(self.dist2head(coords))
                 obj_dists.append(dist_value*(-1))
-            else:
+            elif 'food' in tags:
+                dist_value=np.sqrt(self.dist2head(coords))
                 obj_dists.append(dist_value)
-
-            obj_angles.append(absAngle_d(self.body[0].center,get_obj_center(coords)))
+            obj_angles.append(absAngle_d(mp,get_obj_center(coords)))
         while len(obj_dists)<self.objs_to_see:
             obj_dists.append(0)
             obj_angles.append(0)
+#        print([(d,a) for d,a in zip(obj_dists,obj_angles)])
         return obj_dists,obj_angles
 
     def parse_vision(self,v):
@@ -349,13 +356,20 @@ class snake():
         l,out=self.brain.run(pos)
         self.turnHead((out[0]-0.5)*2.2*self.max_turning)
         
+    def think_and_train(self):
+        vision,angles=self.see_closest(self.vision_range)
+        pos=vision
+#        print(vision)
+        pos.extend(angles)
+        pos.extend([self.body[0].direction,len(self.body)])
+        self.brain.train(pos,[self.direction],0.001)
     def grow(self):
 #        tam=len(self.body)
         self.body.append(self.segment(self,self.body[-1].vertex[0:4]))
         
     def die(self,banquet):
         for seg in self.body:
-            pos=seg.center[0:2]
+            pos=get_obj_center(seg.vertex)
             banquet.addFood(pos)
             self.root.delete(seg.shape)
 #            self.body.remove(seg)
@@ -378,6 +392,7 @@ class snake():
         
     
 class food():
+    """ This class implements a food"""
     def clean(self):
         self.root.delete(self.shape)
 
@@ -386,10 +401,10 @@ class food():
         self.pos=foodPos
         self.father=father
         self.root=root
-        self.shape=root.create_oval(foodPos[0],
-                         foodPos[1],
-                         foodPos[0]+width,
-                         foodPos[1]+width,
+        self.shape=root.create_oval(foodPos[0]-width/2.0,
+                         foodPos[1]-width/2.0,
+                         foodPos[0]+width/2.0,
+                         foodPos[1]+width/2.0,
                          fill='yellow',
                          outline='yellow',
                          tags='food')

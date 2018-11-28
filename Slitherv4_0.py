@@ -17,7 +17,6 @@ import banquet
 import snkAgUtils
 import threading
 import snkbrain
-import gc
 #import population_control as pc
 
 
@@ -40,10 +39,10 @@ new_snakes_flag=False
 first_run=True
 max_time=7
 pps=500
-frame_period=20
-food_score=800
+frame_period=30
+food_score=2000
 initial_pop=5
-food_quantity=200
+food_quantity=50
 food_width=5
 tam_pop=20
 mutation_chance=38
@@ -51,7 +50,7 @@ mutation_rate=0.1
 mutation_rate_mult=4
 mutation_rate_max=1
 mutation_rate_min=0.001
-brain_config=([22,15,1],[1,1,0])
+brain_config=([22,1,1],[1,1,0])
 incremental_rate=25
 mod_flag=False  
 max_gen=1000
@@ -90,7 +89,6 @@ def reset_simulation():
     global foods,snakes,new_snakes_flag,gen,player_on,mysnake,frame_count,food_width,best
     gen,frame_count=0,0
     w.delete(ALL)
-    w.create_rectangle(50,50,100,100)
     foods =banquet.banquet(w,food_quantity,width=food_width)
     snakes=snakery.snakery_class(w,initial_pop,foods,**snake_init)
     best=snakes[0]
@@ -227,7 +225,7 @@ def start_over(e):
     with snakes_lock:
         sim_on=True    
 def apply():
-    global input_number,player_on,entry_variables,food_width,tam_pop,food_score,pps,initial_pop,food_quantity,frame_count,frame_period,max_time,incremental_rate,new_snakes_flag
+    global mutation_chance,input_number,player_on,entry_variables,food_width,tam_pop,food_score,pps,initial_pop,food_quantity,frame_count,frame_period,max_time,incremental_rate,new_snakes_flag
 #    mod_lock.set()
 #    mod_ready.wait()
 #    mod_ready.clear()
@@ -246,6 +244,10 @@ def apply():
             biases=[1 for i in range(len(config)+1)]+[0]
             brain=[input_number*2+2]+config+[1]
             snake_init['brain_config']=[brain,biases]
+            temp=0
+            for i in range(len(brain)-1):
+                temp+=brain[i]*brain[i+1]
+            mutation_chance=10000./temp+1
     #        print(snake_init['brain_config'])
         if svev.get():  snake_init['vision_range']=int(svev.get())
         if stev.get():  snake_init['max_turning']=float(stev.get())
