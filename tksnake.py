@@ -11,7 +11,7 @@ import time
 import math
 import itertools
 from snkbrain import *
-from behaviors import *
+#from behaviors import *
 
 # from itertools recipes: https://docs.python.org/2/library/itertools.html
 def vecDir(v1,v2):
